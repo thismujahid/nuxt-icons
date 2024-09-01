@@ -11,6 +11,7 @@ import { ref, watchEffect } from '#imports'
 
 const props = withDefaults(defineProps<{
   name: string;
+  placeholder?: srting;
   filled?: boolean
 }>(), { filled: false })
 
@@ -18,17 +19,18 @@ const props = withDefaults(defineProps<{
 const icon = ref<string | Record<string, any>>('')
 let hasStroke = false
 
-async function getIcon () {
+async function getIcon (icon?:string) {
   try {
     const iconsImport = import.meta.glob('assets/icons/**/**.svg', {
       eager: false,
       query: '?raw',
       import: 'default'
     })
-    const rawIcon = await iconsImport[`/assets/icons/${props.name}.svg`]()
+    const rawIcon = await iconsImport[`/assets/icons/${icon||props.name}.svg`]()
     if (rawIcon.includes('stroke')) { hasStroke = true }
     icon.value = rawIcon
   } catch {
+    await getIcon(props.placeholder)
     console.error(
       `[nuxt-icons] Icon '${props.name}' doesn't exist in 'assets/icons'`
     )
